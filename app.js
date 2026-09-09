@@ -59,6 +59,23 @@
     });
   }
 
+  /* Matiz determinística a partir de uma string (categoria) — dá variedade
+     visual consistente aos cartões sem precisar de mapear cor a cor. */
+  function matiz(s) {
+    var h = 0;
+    s = s || "";
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return h % 360;
+  }
+
+  var ICONE_PARTILHA = '<svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/>' +
+    '<path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>';
+
+  function textoPartilha(e) {
+    var quando = rotuloDia(e.data);
+    return e.titulo + " — " + quando + (e.local ? " · " + e.local : "") + "\n" + e.link;
+  }
+
   /* Limites do próximo fim de semana (sáb+dom); se já for fds, o corrente. */
   function janelaFds() {
     var d = new Date(), dow = d.getDay();
@@ -123,8 +140,11 @@
              esc(f.fonte) + "</a>";
     }).join(" · ");
     tags.push('<span class="fonte">' + links + "</span>");
+    tags.push('<button class="btn-partilha" data-partilha="' + esc(e.link) + '" ' +
+              'data-texto="' + esc(textoPartilha(e)) + '" type="button">' +
+              ICONE_PARTILHA + "Partilhar</button>");
 
-    return '<article class="cartao">' +
+    return '<article class="cartao" style="--h:' + matiz(e.tipo) + '">' +
       '<h2><a href="' + esc(e.link) + '" target="_blank" rel="noopener">' +
         esc(e.titulo) + "</a></h2>" +
       (partes.length ? '<p class="meta">' + partes.join(" · ") + "</p>" : "") +
@@ -308,8 +328,45 @@
       });
   }
 
+  /* Partilha por evento: Web Share API nativa (abre o menu do telemóvel,
+     WhatsApp incluído) com recurso a copiar para a área de transferência
+     quando o browser não suportar (tipicamente desktop). */
+  function partilhar(botao) {
+    var link = botao.dataset.partilha;
+    var texto = botao.dataset.texto;
+    if (navigator.share) {
+      // "text" sem o link (a API mostra "url" à parte); no clipboard abaixo
+      // o texto completo, com link, viaja junto — não há "url" separado ali.
+      var textoSemLink = texto.replace(/\n[^\n]*$/, "");
+      navigator.share({ title: "Grátis em Lisboa", text: textoSemLink, url: link }).catch(function () {});
+      return;
+    }
+    var copiar = navigator.clipboard && navigator.clipboard.writeText
+      ? navigator.clipboard.writeText(texto)
+      : Promise.reject();
+    copiar.then(function () {
+      avisarCopiado(botao);
+    }).catch(function () {
+      // Último recurso: seleção manual via prompt, para browsers muito antigos.
+      window.prompt("Copia o link:", link);
+    });
+  }
+
+  function avisarCopiado(botao) {
+    botao.classList.add("copiado");
+    botao.textContent = "Copiado ✓";
+    setTimeout(function () {
+      botao.classList.remove("copiado");
+      botao.innerHTML = ICONE_PARTILHA + "Partilhar";
+    }, 1800);
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     repor();
+    $("#lista").addEventListener("click", function (ev) {
+      var b = ev.target.closest("[data-partilha]");
+      if (b) partilhar(b);
+    });
     var busca = $("#pesquisa"), t;
     busca.oninput = function () {
       clearTimeout(t);
