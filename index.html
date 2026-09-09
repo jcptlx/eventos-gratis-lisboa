@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grátis em Lisboa</title>
+<meta name="description" content="Eventos gratuitos em Lisboa e na Área Metropolitana de Lisboa.">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="icone-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Grátis LX">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+
+<header class="topo">
+  <div class="topo-linha">
+    <h1>Grátis em Lisboa</h1>
+    <button id="btn-recarregar" class="icone" title="Recarregar dados" aria-label="Recarregar dados">&#8635;</button>
+  </div>
+  <p class="sub" id="sub">a carregar…</p>
+
+  <div class="filtros">
+    <div class="chips" id="periodos" role="tablist" aria-label="Período"></div>
+    <input type="search" id="pesquisa" placeholder="Procurar evento, sítio…" autocomplete="off" aria-label="Procurar">
+    <details class="conc-caixa" id="conc-caixa">
+      <summary><span id="conc-resumo">Todos os concelhos</span></summary>
+      <div class="chips chips-conc" id="concelhos"></div>
+      <button class="limpar" id="btn-limpar-conc">Limpar seleção</button>
+    </details>
+    <details class="conc-caixa" id="tipo-caixa">
+      <summary><span id="tipo-resumo">Todos os tipos</span></summary>
+      <div class="chips chips-conc" id="tipos"></div>
+      <button class="limpar" id="btn-limpar-tipo">Limpar seleção</button>
+    </details>
+  </div>
+</header>
+
+<main id="lista" aria-live="polite"></main>
+
+<footer class="rodape">
+  <p id="rodape-txt"></p>
+  <p class="mini">Dados: <a href="https://www.agendalx.pt" rel="noopener">AgendaLX</a> (Município de Lisboa, CC-BY)
+     e <a href="https://www.aml.pt/agenda/" rel="noopener">Agenda da AML</a>. Só eventos marcados como gratuitos pela própria fonte.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
